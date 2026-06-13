@@ -63,12 +63,14 @@ class _CertificatesViewState extends State<CertificatesView> {
 
   Future<void> _downloadCertificate(String certId) async {
     final downloadUrl = Uri.parse('${ApiConstants.baseUrl}/api/certificates/$certId/download');
-    if (await canLaunchUrl(downloadUrl)) {
+    try {
       await launchUrl(downloadUrl, mode: LaunchMode.externalApplication);
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Could not initiate certificate download.')),
-      );
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Unable to download certificate. Please check your internet connection.')),
+        );
+      }
     }
   }
 

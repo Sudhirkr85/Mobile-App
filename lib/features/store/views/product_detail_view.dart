@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/constants/api_constants.dart';
 import '../models/product_model.dart';
-import '../providers/cart_provider.dart';
-import 'cart_view.dart';
 
 class ProductDetailView extends StatelessWidget {
   final ProductModel product;
@@ -13,7 +12,6 @@ class ProductDetailView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cartProvider = context.watch<CartProvider>();
     final hasDiscount = product.discountPercent > 0;
 
     return Scaffold(
@@ -162,12 +160,17 @@ class ProductDetailView extends StatelessWidget {
 
                   // Buy Button card
                   ElevatedButton(
-                    onPressed: () {
-                      cartProvider.addToCart(product);
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => const CartView()),
-                      );
+                    onPressed: () async {
+                      final url = Uri.parse('${ApiConstants.baseUrl}/store/${product.slug}');
+                      try {
+                        await launchUrl(url, mode: LaunchMode.inAppBrowserView);
+                      } catch (e) {
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Unable to open purchase page. Please check your internet connection.')),
+                          );
+                        }
+                      }
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primary,
@@ -176,7 +179,7 @@ class ProductDetailView extends StatelessWidget {
                     ),
                     child: Center(
                       child: Text(
-                        'ADD TO CART & CHECKOUT',
+                        'BUY NOW',
                         style: GoogleFonts.inter(
                           fontWeight: FontWeight.bold,
                           color: Colors.white,

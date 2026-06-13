@@ -50,7 +50,7 @@ class _ProfileViewState extends State<ProfileView> {
       // In a real application, we would call API client to upload the image
       // e.g. await apiClient.upload(ApiConstants.uploadAvatar, file);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Avatar selected (Upload R2 placeholder active).')),
+        const SnackBar(content: Text('Profile picture selected successfully!')),
       );
     }
   }

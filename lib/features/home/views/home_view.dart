@@ -20,14 +20,32 @@ class _HomeViewState extends State<HomeView> {
   String _searchQuery = '';
   final List<String> _categories = ['All', 'NMMS', 'Navodaya', 'Sainik', 'Simultala', 'CMMSS'];
   String _selectedCategory = 'All';
+  String? _errorMessage;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<CourseProvider>().fetchCourses();
-      context.read<CourseProvider>().fetchWishlist();
+      _loadData();
     });
+  }
+
+  Future<void> _loadData() async {
+    if (!mounted) return;
+    setState(() {
+      _errorMessage = null;
+    });
+    try {
+      await context.read<CourseProvider>().fetchCourses();
+      if (!mounted) return;
+      await context.read<CourseProvider>().fetchWishlist();
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _errorMessage = e.toString().replaceAll('ApiException: ', '');
+        });
+      }
+    }
   }
 
   @override
@@ -179,24 +197,48 @@ class _HomeViewState extends State<HomeView> {
           ),
           const SizedBox(height: 12),
 
-          // Course Grid / List
           Expanded(
             child: courseProvider.isLoading
                 ? const Center(
                     child: CircularProgressIndicator(color: AppColors.accent),
                   )
-                : filteredCourses.isEmpty
+                : _errorMessage != null
                     ? Center(
-                        child: Text(
-                          'No courses found.',
-                          style: GoogleFonts.inter(color: AppColors.textSecondary),
+                        child: Padding(
+                          padding: const EdgeInsets.all(24.0),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(Icons.wifi_off, size: 48, color: AppColors.error),
+                              const SizedBox(height: 16),
+                              Text(
+                                _errorMessage!,
+                                textAlign: TextAlign.center,
+                                style: GoogleFonts.inter(color: Colors.white, fontSize: 14),
+                              ),
+                              const SizedBox(height: 16),
+                              ElevatedButton(
+                                onPressed: _loadData,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppColors.primary,
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                ),
+                                child: Text('Retry', style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: Colors.white)),
+                              )
+                            ],
+                          ),
                         ),
                       )
-                    : RefreshIndicator(
-                        onRefresh: () async {
-                          await courseProvider.fetchCourses();
-                        },
-                        color: AppColors.accent,
+                    : filteredCourses.isEmpty
+                        ? Center(
+                            child: Text(
+                              'No courses found.',
+                              style: GoogleFonts.inter(color: AppColors.textSecondary),
+                            ),
+                          )
+                        : RefreshIndicator(
+                            onRefresh: _loadData,
+                            color: AppColors.accent,
                         child: ListView.builder(
                           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                           itemCount: filteredCourses.length,

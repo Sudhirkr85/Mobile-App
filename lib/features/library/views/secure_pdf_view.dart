@@ -75,10 +75,10 @@ class _SecurePdfViewState extends State<SecurePdfView> {
     if (mounted) {
       setState(() {
         _isLoading = false;
-        _loadingMessage = 'Failed to load PDF. $err';
+        _loadingMessage = 'Failed to load PDF. Please check your connection and try again.';
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Verification Failed: $err'), backgroundColor: AppColors.error),
+        const SnackBar(content: Text('Failed to load document. Please check your internet connection.'), backgroundColor: AppColors.error),
       );
     }
   }

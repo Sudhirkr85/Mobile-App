@@ -31,12 +31,14 @@ class _LoginViewState extends State<LoginView> {
   // Launches the web page for forgot password
   Future<void> _launchForgotPassword() async {
     final url = Uri.parse('${ApiConstants.baseUrl}/forgot-password'); // Pointing to Next.js env
-    if (await canLaunchUrl(url)) {
+    try {
       await launchUrl(url, mode: LaunchMode.externalApplication);
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Could not launch password reset website')),
-      );
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Unable to open password reset link. Please check your connection and try again.')),
+        );
+      }
     }
   }
 
@@ -44,13 +46,9 @@ class _LoginViewState extends State<LoginView> {
   Future<void> _launchSocialAuth(String provider) async {
     final url = Uri.parse('${ApiConstants.baseUrl}/api/auth/signin/$provider');
     try {
-      if (await canLaunchUrl(url)) {
-        await launchUrl(url, mode: LaunchMode.externalApplication);
-      } else {
-        _showError('Could not launch auth browser for $provider');
-      }
+      await launchUrl(url, mode: LaunchMode.externalApplication);
     } catch (e) {
-      _showError('Error opening $provider link: $e');
+      _showError('Unable to open $provider login page. Please check your connection.');
     }
   }
 

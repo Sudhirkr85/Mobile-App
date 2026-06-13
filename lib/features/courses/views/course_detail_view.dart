@@ -16,12 +16,12 @@ class CourseDetailView extends StatelessWidget {
   Future<void> _launchCheckout(BuildContext context) async {
     // Open web payment checkout using url_launcher
     final url = Uri.parse('${ApiConstants.baseUrl}/courses/${course.slug}');
-    if (await canLaunchUrl(url)) {
+    try {
       await launchUrl(url, mode: LaunchMode.externalApplication);
-    } else {
+    } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Could not open checkout page.')),
+          const SnackBar(content: Text('Unable to open checkout page. Please check your internet connection.')),
         );
       }
     }

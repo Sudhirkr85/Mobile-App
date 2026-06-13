@@ -115,13 +115,15 @@ class CartProvider extends ChangeNotifier {
       '${ApiConstants.baseUrl}/checkout?items=$itemIds&coupon=$couponCode',
     );
 
-    if (await canLaunchUrl(checkoutUrl)) {
+    try {
       await launchUrl(checkoutUrl, mode: LaunchMode.externalApplication);
       clearCart(); // Clear locally on checkout launch
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Could not open store checkout website')),
-      );
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Unable to open checkout. Please check your internet connection and try again.')),
+        );
+      }
     }
   }
 }

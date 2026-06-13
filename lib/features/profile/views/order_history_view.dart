@@ -35,32 +35,8 @@ class _OrderHistoryViewState extends State<OrderHistoryView> {
         });
       }
     } catch (_) {
-      // Mock fallback orders if API is missing
       setState(() {
-        _orders = [
-          {
-            'orderNumber': 'ORD-987452',
-            'placedAt': '2026-06-12T10:00:00Z',
-            'status': 'PAID',
-            'totalCents': 24900, // ₹249.00
-            'shippingStatus': 'SHIPPED',
-            'courierName': 'Post Office (India Post)',
-            'trackingNumber': 'IP123456789IN',
-            'items': [
-              {'productName': 'LMS Placement Reference Guide Volume 1', 'quantity': 1}
-            ]
-          },
-          {
-            'orderNumber': 'ORD-987211',
-            'placedAt': '2026-06-10T12:00:00Z',
-            'status': 'PAID',
-            'totalCents': 0, // ₹0.0
-            'shippingStatus': 'DELIVERED',
-            'items': [
-              {'productName': 'Dynamic Systems Theory (E-Course)', 'quantity': 1}
-            ]
-          }
-        ];
+        _orders = [];
       });
     } finally {
       setState(() {
