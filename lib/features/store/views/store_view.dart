@@ -244,9 +244,8 @@ class _StoreViewState extends State<StoreView> {
                                         ],
                                       ),
                                       
-                                      // View Details Action
-                                      IconButton(
-                                        icon: const Icon(Icons.arrow_forward, size: 20, color: AppColors.accent),
+                                      // View Details Action Button
+                                      ElevatedButton(
                                         onPressed: () {
                                           Navigator.push(
                                             context,
@@ -255,6 +254,23 @@ class _StoreViewState extends State<StoreView> {
                                             ),
                                           );
                                         },
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: AppColors.primary,
+                                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                          minimumSize: Size.zero,
+                                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(6),
+                                          ),
+                                        ),
+                                        child: Text(
+                                          'VIEW',
+                                          style: GoogleFonts.inter(
+                                            color: Colors.white,
+                                            fontSize: 11,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
                                       )
                                     ],
                                   ),
