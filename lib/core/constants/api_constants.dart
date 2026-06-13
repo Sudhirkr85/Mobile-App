@@ -3,9 +3,27 @@ class ApiConstants {
   // flutter run --dart-define-from-file=.env.json
   static const String baseUrl = String.fromEnvironment(
     'API_BASE_URL',
-    defaultValue: 'http://10.0.2.2:3000',
+    defaultValue: 'https://sudhir-sa.vercel.app',
   );
   static const String apiVersion = '/api';
+
+  // Support & Branding configurations (from env)
+  static const String supportPhone = String.fromEnvironment(
+    'SUPPORT_PHONE',
+    defaultValue: '+91 91101 13671',
+  );
+  static const String supportEmail = String.fromEnvironment(
+    'SUPPORT_EMAIL',
+    defaultValue: 'noreply@sagarcoachingcentre.com',
+  );
+  static const String officialWebsite = String.fromEnvironment(
+    'OFFICIAL_WEBSITE',
+    defaultValue: 'https://sagarcoachingcentre.com',
+  );
+  static const String coachingAddress = String.fromEnvironment(
+    'COACHING_ADDRESS',
+    defaultValue: 'NH 106, Bhagwanpur, Supaul, Bihar - 854338',
+  );
 
   // Auth Endpoints
   static const String login = '$apiVersion/auth/callback/credentials'; // NextAuth endpoint

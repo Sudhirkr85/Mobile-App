@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/constants/api_constants.dart';
 import '../providers/auth_provider.dart';
 import 'register_view.dart';
 import '../../home/views/main_layout.dart';
@@ -29,13 +30,27 @@ class _LoginViewState extends State<LoginView> {
 
   // Launches the web page for forgot password
   Future<void> _launchForgotPassword() async {
-    final url = Uri.parse('http://10.0.2.2:3000/forgot-password'); // Pointing to Next.js
+    final url = Uri.parse('${ApiConstants.baseUrl}/forgot-password'); // Pointing to Next.js env
     if (await canLaunchUrl(url)) {
       await launchUrl(url, mode: LaunchMode.externalApplication);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Could not launch password reset website')),
       );
+    }
+  }
+
+  // Launches the social auth signin on Vercel/NextAuth web portal
+  Future<void> _launchSocialAuth(String provider) async {
+    final url = Uri.parse('${ApiConstants.baseUrl}/api/auth/signin/$provider');
+    try {
+      if (await canLaunchUrl(url)) {
+        await launchUrl(url, mode: LaunchMode.externalApplication);
+      } else {
+        _showError('Could not launch auth browser for $provider');
+      }
+    } catch (e) {
+      _showError('Error opening $provider link: $e');
     }
   }
 
@@ -265,9 +280,7 @@ class _LoginViewState extends State<LoginView> {
                         children: [
                           Expanded(
                             child: OutlinedButton.icon(
-                              onPressed: () {
-                                _showError('Social Logins are handled securely via OAuth on our web portal.');
-                              },
+                              onPressed: () => _launchSocialAuth('google'),
                               icon: const Text('🌐', style: TextStyle(fontSize: 18)),
                               label: Text(
                                 'Google',
@@ -286,9 +299,7 @@ class _LoginViewState extends State<LoginView> {
                           const SizedBox(width: 16),
                           Expanded(
                             child: OutlinedButton.icon(
-                              onPressed: () {
-                                _showError('Social Logins are handled securely via OAuth on our web portal.');
-                              },
+                              onPressed: () => _launchSocialAuth('github'),
                               icon: const Text('🐙', style: TextStyle(fontSize: 18)),
                               label: Text(
                                 'GitHub',

@@ -8,6 +8,7 @@ import '../../auth/providers/auth_provider.dart';
 import '../../auth/views/login_view.dart';
 import 'order_history_view.dart';
 import 'certificates_view.dart';
+import 'about_view.dart';
 
 class ProfileView extends StatefulWidget {
   const ProfileView({super.key});
@@ -206,6 +207,19 @@ class _ProfileViewState extends State<ProfileView> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(builder: (context) => const CertificatesView()),
+                      );
+                    },
+                  ),
+                  const Divider(height: 1, color: AppColors.border),
+                  ListTile(
+                    leading: const Icon(Icons.info_outline, color: AppColors.accent),
+                    title: Text('About Coaching Centre (हमारे बारे में)', style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
+                    subtitle: Text('Contact info, founder, & official stats', style: GoogleFonts.inter(fontSize: 11)),
+                    trailing: const Icon(Icons.arrow_forward_ios, size: 14),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const AboutCentreView()),
                       );
                     },
                   ),
