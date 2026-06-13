@@ -188,6 +188,36 @@ class ApiClient {
     }
   }
 
+  // Multipart POST Request (for file upload)
+  Future<dynamic> postMultipart(String endpoint, File file, String fieldName, {bool requiresAuth = true}) async {
+    final uri = Uri.parse('${ApiConstants.baseUrl}$endpoint');
+    try {
+      final request = http.MultipartRequest('POST', uri);
+      
+      if (requiresAuth) {
+        final token = await _getToken();
+        if (token != null) {
+          request.headers['Cookie'] = token;
+        }
+      }
+      
+      request.files.add(
+        await http.MultipartFile.fromPath(
+          fieldName,
+          file.path,
+        ),
+      );
+      
+      final streamedResponse = await _client.send(request);
+      final response = await http.Response.fromStream(streamedResponse);
+      return _processResponse(response);
+    } on SocketException {
+      throw ApiException('No Internet connection. Please check your network.', 503);
+    } catch (e) {
+      throw ApiException('An unexpected network error occurred: $e');
+    }
+  }
+
   // PUT Request
   Future<dynamic> put(String endpoint, {dynamic body, bool requiresAuth = true}) async {
     final uri = Uri.parse('${ApiConstants.baseUrl}$endpoint');

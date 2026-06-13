@@ -8,6 +8,7 @@ import '../models/course_model.dart';
 import '../models/classroom_models.dart';
 import '../providers/course_provider.dart';
 import 'quiz_view.dart'; // We will build this in Module 9
+import '../../library/views/secure_pdf_view.dart';
 
 class ClassroomView extends StatefulWidget {
   final CourseModel course;
@@ -116,6 +117,79 @@ class _ClassroomViewState extends State<ClassroomView> {
         children: [
           // 1. Player Viewport (Top half)
           _buildPlayerViewport(),
+
+          // 2. Active lesson control bar (Mark Lesson Completed trigger)
+          if (_selectedLesson != null && widget.course.isEnrolled)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              color: AppColors.surface,
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          _selectedLesson!.title,
+                          style: GoogleFonts.outfit(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        Text(
+                          _selectedLesson!.isCompleted ? '✓ Completed (पूरा हो गया)' : 'Learning in progress...',
+                          style: GoogleFonts.inter(
+                            fontSize: 11,
+                            color: _selectedLesson!.isCompleted ? AppColors.success : AppColors.textMuted,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Row(
+                    children: [
+                      Text(
+                        'Mark Completed',
+                        style: GoogleFonts.inter(fontSize: 12, color: Colors.white70),
+                      ),
+                      const SizedBox(width: 4),
+                      Switch(
+                        value: _selectedLesson!.isCompleted,
+                        activeTrackColor: AppColors.success,
+                        onChanged: (val) async {
+                          final messenger = ScaffoldMessenger.of(context);
+                          try {
+                            final courseProvider = context.read<CourseProvider>();
+                            await courseProvider.toggleLessonProgress(
+                              courseId: widget.course.id,
+                              lessonId: _selectedLesson!.id,
+                              isCompleted: val,
+                            );
+                            if (!mounted) return;
+                            setState(() {
+                              _selectedLesson = LessonModel(
+                                id: _selectedLesson!.id,
+                                title: _selectedLesson!.title,
+                                slug: _selectedLesson!.slug,
+                                contentType: _selectedLesson!.contentType,
+                                youtubeUrl: _selectedLesson!.youtubeUrl,
+                                r2AssetUrl: _selectedLesson!.r2AssetUrl,
+                                isPreview: _selectedLesson!.isPreview,
+                                isCompleted: val,
+                              );
+                            });
+                          } catch (e) {
+                            messenger.showSnackBar(
+                              SnackBar(content: Text('Failed to update progress: $e')),
+                            );
+                          }
+                        },
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
 
           const Divider(height: 1, color: AppColors.border),
 
@@ -309,8 +383,7 @@ class _ClassroomViewState extends State<ClassroomView> {
                 const SizedBox(height: 12),
                 ElevatedButton.icon(
                   onPressed: () {
-                    // In-app PDF view or download
-                    _openPDF(lesson.r2AssetUrl ?? '');
+                    _openPDF(lesson.r2AssetUrl ?? '', lesson.title);
                   },
                   icon: const Icon(Icons.chrome_reader_mode, color: Colors.white),
                   label: Text('Read document', style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.bold)),
@@ -359,11 +432,16 @@ class _ClassroomViewState extends State<ClassroomView> {
     }
   }
 
-  void _openPDF(String url) {
+  void _openPDF(String url, String title) {
     if (url.isEmpty) return;
-    // Route to secure viewer (Module 10) or download
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('PDF view will stream securely inside Module 10.')),
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => SecurePdfView(
+          title: title,
+          pdfUrl: url,
+        ),
+      ),
     );
   }
 

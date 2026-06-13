@@ -140,4 +140,48 @@ class CourseProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  // 6. Toggle lesson progress completion status on the server
+  Future<void> toggleLessonProgress({
+    required String courseId,
+    required String lessonId,
+    required bool isCompleted,
+  }) async {
+    try {
+      final response = await _apiClient.post(
+        ApiConstants.lessonProgress,
+        body: {
+          'courseId': courseId,
+          'lessonId': lessonId,
+          'isCompleted': isCompleted,
+        },
+        requiresAuth: true,
+      );
+
+      if (response != null && response['success'] == true) {
+        // Find and update the lesson completion state locally for instant UI update
+        for (var section in _syllabusSections) {
+          for (var i = 0; i < section.lessons.length; i++) {
+            if (section.lessons[i].id == lessonId) {
+              final original = section.lessons[i];
+              section.lessons[i] = LessonModel(
+                id: original.id,
+                title: original.title,
+                slug: original.slug,
+                contentType: original.contentType,
+                youtubeUrl: original.youtubeUrl,
+                r2AssetUrl: original.r2AssetUrl,
+                isPreview: original.isPreview,
+                isCompleted: isCompleted,
+              );
+              break;
+            }
+          }
+        }
+        notifyListeners();
+      }
+    } catch (e) {
+      rethrow;
+    }
+  }
 }

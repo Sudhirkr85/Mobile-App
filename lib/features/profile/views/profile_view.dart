@@ -43,15 +43,27 @@ class _ProfileViewState extends State<ProfileView> {
   Future<void> _pickAvatar() async {
     final picker = ImagePicker();
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    if (!mounted) return;
     if (pickedFile != null) {
+      final file = File(pickedFile.path);
       setState(() {
-        _avatarFile = File(pickedFile.path);
+        _avatarFile = file;
       });
-      // In a real application, we would call API client to upload the image
-      // e.g. await apiClient.upload(ApiConstants.uploadAvatar, file);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Profile picture selected successfully!')),
-      );
+      try {
+        final authProvider = context.read<AuthProvider>();
+        final success = await authProvider.uploadProfilePicture(file);
+        if (success && mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Profile picture updated successfully!')),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed to upload profile picture: $e')),
+          );
+        }
+      }
     }
   }
 

@@ -1,6 +1,8 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -45,29 +47,62 @@ class _SecurePdfViewState extends State<SecurePdfView> {
 
   Future<void> _downloadPdf() async {
     try {
-      final response = await http.get(Uri.parse(widget.pdfUrl));
+      const storage = FlutterSecureStorage();
+      final token = await storage.read(key: 'jwt_token');
+      
+      final Map<String, String> headers = {
+        'Accept': 'application/json, application/pdf, */*',
+      };
+      if (token != null) {
+        headers['Cookie'] = token;
+      }
+
+      final response = await http.get(Uri.parse(widget.pdfUrl), headers: headers);
       
       if (response.statusCode == 200) {
-        final bytes = response.bodyBytes;
-        final dir = await getTemporaryDirectory();
-        
-        // Random secure temp name to prevent user interception
-        final tempFileName = 'secure_ref_${DateTime.now().microsecondsSinceEpoch}.pdf';
-        final file = File('${dir.path}/$tempFileName');
-        
-        await file.writeAsBytes(bytes, flush: true);
-        
-        if (mounted) {
-          setState(() {
-            _localPath = file.path;
-            _isLoading = false;
-          });
+        final contentType = response.headers['content-type'] ?? '';
+        final isJson = contentType.contains('application/json') || 
+                       (!widget.pdfUrl.endsWith('.pdf') && !response.body.startsWith('%PDF'));
+
+        if (isJson) {
+          final data = jsonDecode(response.body);
+          final fileUrl = data['fileUrl'];
+          if (fileUrl == null || fileUrl.toString().isEmpty) {
+            _handleDownloadError('Secure URL not found.');
+            return;
+          }
+
+          // Fetch actual PDF binary from the secure R2/S3 URL (doesn't require our cookie headers)
+          final pdfResponse = await http.get(Uri.parse(fileUrl.toString()));
+          if (pdfResponse.statusCode == 200) {
+            final bytes = pdfResponse.bodyBytes;
+            await _savePdfBytes(bytes);
+          } else {
+            _handleDownloadError('Asset server returned error: ${pdfResponse.statusCode}');
+          }
+        } else {
+          // Already raw PDF binary
+          final bytes = response.bodyBytes;
+          await _savePdfBytes(bytes);
         }
       } else {
         _handleDownloadError('Server returned error status code: ${response.statusCode}');
       }
     } catch (e) {
       _handleDownloadError('Check internet connection: $e');
+    }
+  }
+
+  Future<void> _savePdfBytes(List<int> bytes) async {
+    final dir = await getTemporaryDirectory();
+    final tempFileName = 'secure_ref_${DateTime.now().microsecondsSinceEpoch}.pdf';
+    final file = File('${dir.path}/$tempFileName');
+    await file.writeAsBytes(bytes, flush: true);
+    if (mounted) {
+      setState(() {
+        _localPath = file.path;
+        _isLoading = false;
+      });
     }
   }
 

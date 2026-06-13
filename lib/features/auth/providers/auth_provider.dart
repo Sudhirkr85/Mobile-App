@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../../../core/network/api_client.dart';
@@ -125,5 +126,38 @@ class AuthProvider extends ChangeNotifier {
     _isAuthenticated = false;
     await _storage.delete(key: 'jwt_token');
     notifyListeners();
+  }
+
+  // 5. Upload Avatar: Uploads profile picture and updates local state
+  Future<bool> uploadProfilePicture(File file) async {
+    _isLoading = true;
+    notifyListeners();
+
+    try {
+      final response = await _apiClient.postMultipart(
+        ApiConstants.uploadAvatar,
+        file,
+        'avatar',
+        requiresAuth: true,
+      );
+
+      if (response != null && response['image'] != null) {
+        if (_userProfile != null) {
+          _userProfile = Map<String, dynamic>.from(_userProfile!);
+          _userProfile!['image'] = response['image'];
+        }
+        _isLoading = false;
+        notifyListeners();
+        return true;
+      }
+    } catch (e) {
+      _isLoading = false;
+      notifyListeners();
+      rethrow;
+    }
+
+    _isLoading = false;
+    notifyListeners();
+    return false;
   }
 }

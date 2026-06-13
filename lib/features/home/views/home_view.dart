@@ -199,7 +199,6 @@ class _HomeViewState extends State<HomeView> {
                           itemCount: filteredCourses.length,
                           itemBuilder: (context, index) {
                             final course = filteredCourses[index];
-                            final isWishlisted = courseProvider.wishlistedIds.contains(course.id);
                             
                             return Card(
                               margin: const EdgeInsets.only(bottom: 16),
@@ -225,7 +224,7 @@ class _HomeViewState extends State<HomeView> {
                                                   course.coverImageUrl!,
                                                   fit: BoxFit.cover,
                                                   errorBuilder: (_, __, ___) => _buildPlaceholderImage(),
-                                                )
+                                              )
                                               : _buildPlaceholderImage(),
                                         ),
                                         Positioned(
@@ -247,23 +246,6 @@ class _HomeViewState extends State<HomeView> {
                                             ),
                                           ),
                                         ),
-                                        Positioned(
-                                          top: 12,
-                                          right: 12,
-                                          child: CircleAvatar(
-                                            backgroundColor: AppColors.surface.withOpacity(0.85),
-                                            child: IconButton(
-                                              icon: Icon(
-                                                isWishlisted ? Icons.favorite : Icons.favorite_border,
-                                                color: isWishlisted ? Colors.pink : Colors.white,
-                                                size: 20,
-                                              ),
-                                              onPressed: () {
-                                                courseProvider.toggleWishlist(course.id);
-                                              },
-                                            ),
-                                          ),
-                                        )
                                       ],
                                     ),
 
