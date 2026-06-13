@@ -91,8 +91,13 @@ class _LoginViewState extends State<LoginView> {
               height: 300,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: AppColors.primary.withOpacity(0.12),
-                blurRadius: 100,
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.primary.withOpacity(0.12),
+                    blurRadius: 100,
+                    spreadRadius: 50,
+                  ),
+                ],
               ),
             ),
           ),
@@ -108,14 +113,10 @@ class _LoginViewState extends State<LoginView> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       // Header Brand details
-                      Text(
-                        '🎓 Sagar Coaching Centre',
-                        style: GoogleFonts.outfit(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.primary,
-                        ),
-                        textAlign: TextAlign.center,
+                      Image.asset(
+                        'assets/images/logo_navbar.png',
+                        height: 44,
+                        fit: BoxFit.contain,
                       ),
                       const SizedBox(height: 10),
                       Text(

@@ -13,8 +13,6 @@ class CartView extends StatefulWidget {
 
 class _CartViewState extends State<CartView> {
   final TextEditingController _couponController = TextEditingController();
-  bool _isCouponApplied = false;
-
   @override
   void dispose() {
     _couponController.dispose();
@@ -28,9 +26,6 @@ class _CartViewState extends State<CartView> {
     final success = await cartProvider.applyCoupon(code);
     if (mounted) {
       if (success) {
-        setState(() {
-          _isCouponApplied = true;
-        });
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Coupon "$code" applied successfully!'),

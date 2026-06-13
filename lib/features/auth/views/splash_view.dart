@@ -107,9 +107,9 @@ class _SplashViewState extends State<SplashView> with SingleTickerProviderStateM
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // Glowing logo mock
+                // Glowing logo branding asset
                 Container(
-                  padding: const EdgeInsets.all(24),
+                  padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: AppColors.surface,
@@ -122,9 +122,13 @@ class _SplashViewState extends State<SplashView> with SingleTickerProviderStateM
                       )
                     ]
                   ),
-                  child: const Text(
-                    '🎓',
-                    style: TextStyle(fontSize: 60),
+                  child: ClipOval(
+                    child: Image.asset(
+                      'assets/images/logo.png',
+                      width: 100,
+                      height: 100,
+                      fit: BoxFit.cover,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 30),
