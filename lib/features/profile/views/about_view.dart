@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:share_plus/share_plus.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/constants/api_constants.dart';
 
@@ -41,6 +42,20 @@ class AboutCentreView extends StatelessWidget {
           'About Sagar Coaching Centre',
           style: GoogleFonts.outfit(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.share, color: Colors.white),
+            tooltip: 'Share Coaching Details',
+            onPressed: () {
+              Share.share(
+                'Join Sagar Coaching Centre Supaul, Bihar by Shrvan Kumar Sagar (Aapka Bhai)!\n\n'
+                ' माना कि अंधेरा घना है, पर दीया जलाना कहां मना है\n\n'
+                'Official Website: ${ApiConstants.officialWebsite}\n'
+                'Support Contact: ${ApiConstants.supportPhone}',
+              );
+            },
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20.0),

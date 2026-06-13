@@ -21,6 +21,20 @@ class _StoreViewState extends State<StoreView> {
   List<ProductModel> _products = [];
   bool _isLoading = true;
 
+  static final List<ProductModel> _fallbackProducts = [
+    ProductModel(
+      id: 'bihar-nmmse-book',
+      title: 'BIHAR NMMSE — Bihar Exam Book 2026',
+      slug: 'bihar-nmmse-exam-book',
+      description: 'BIHAR NMMSE Preparation Book 2026. Authors: Shrvan Kumar Sagar, Vinod Kumar, Ajay Kumar. Publisher: Raghav Prakashan. Price: ₹395 | Pages: 350 | ISBN: 9789360136772. Complete coverage of SAT & MAT topics with practice sets.',
+      coverImageUrl: 'assets/images/logo.png', // Fallback to asset
+      priceCents: 39500, // ₹395
+      originalPriceCents: 49500, // ₹495 (20% discount!)
+      productType: 'DIGITAL_RESOURCE',
+      inventoryCount: 100,
+    ),
+  ];
+
   @override
   void initState() {
     super.initState();
@@ -34,15 +48,21 @@ class _StoreViewState extends State<StoreView> {
 
     try {
       final response = await _apiClient.get(ApiConstants.storeProducts, requiresAuth: false);
-      if (response != null && response['products'] != null && response['products'] is List) {
+      if (response != null && response['products'] != null && response['products'] is List && (response['products'] as List).isNotEmpty) {
         setState(() {
           _products = (response['products'] as List)
               .map((p) => ProductModel.fromJson(p))
               .toList();
         });
+      } else {
+        setState(() {
+          _products = List.from(_fallbackProducts);
+        });
       }
     } catch (_) {
-      // Fallback
+      setState(() {
+        _products = List.from(_fallbackProducts);
+      });
     } finally {
       setState(() {
         _isLoading = false;
@@ -146,7 +166,9 @@ class _StoreViewState extends State<StoreView> {
                                     decoration: BoxDecoration(
                                       image: product.coverImageUrl != null
                                           ? DecorationImage(
-                                              image: NetworkImage(product.coverImageUrl!),
+                                              image: product.coverImageUrl!.startsWith('http')
+                                                  ? NetworkImage(product.coverImageUrl!)
+                                                  : AssetImage(product.coverImageUrl!) as ImageProvider,
                                               fit: BoxFit.cover,
                                             )
                                           : null,
@@ -198,13 +220,23 @@ class _StoreViewState extends State<StoreView> {
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                   ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    product.productType.replaceAll('_', ' '),
-                                    style: GoogleFonts.inter(
-                                      color: AppColors.textMuted,
-                                      fontSize: 10,
-                                      fontWeight: FontWeight.w500,
+                                   Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                    decoration: BoxDecoration(
+                                      color: product.productType == 'PHYSICAL_BOOK'
+                                          ? AppColors.primary.withOpacity(0.15)
+                                          : AppColors.accent.withOpacity(0.15),
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                    child: Text(
+                                      product.productType == 'PHYSICAL_BOOK' ? '📖 Printed Book' : '📱 E-Book (PDF)',
+                                      style: GoogleFonts.inter(
+                                        color: product.productType == 'PHYSICAL_BOOK'
+                                            ? AppColors.primary
+                                            : AppColors.accent,
+                                        fontSize: 9,
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     ),
                                   ),
                                   const SizedBox(height: 12),

@@ -3,6 +3,7 @@ import '../../../core/theme/app_theme.dart';
 import '../../courses/views/my_learning_view.dart';
 import '../../courses/views/wishlist_view.dart';
 import '../../profile/views/profile_view.dart';
+import '../../store/views/store_view.dart';
 import 'home_view.dart';
 
 class MainLayout extends StatefulWidget {
@@ -18,6 +19,7 @@ class _MainLayoutState extends State<MainLayout> {
   final List<Widget> _views = [
     const HomeView(),
     const MyLearningView(),
+    const StoreView(),
     const WishlistView(),
     const ProfileView(),
   ];
@@ -62,6 +64,11 @@ class _MainLayoutState extends State<MainLayout> {
               icon: Icon(Icons.school_outlined),
               activeIcon: Icon(Icons.school, color: AppColors.primary),
               label: 'My Learning',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.storefront_outlined),
+              activeIcon: Icon(Icons.storefront, color: AppColors.primary),
+              label: 'Store',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.favorite_border),

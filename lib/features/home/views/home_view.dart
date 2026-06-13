@@ -5,6 +5,9 @@ import '../../../core/theme/app_theme.dart';
 import '../../courses/providers/course_provider.dart';
 import '../../courses/views/course_detail_view.dart';
 
+import '../../store/providers/cart_provider.dart';
+import '../../store/views/cart_view.dart';
+
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
 
@@ -15,6 +18,8 @@ class HomeView extends StatefulWidget {
 class _HomeViewState extends State<HomeView> {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
+  final List<String> _categories = ['All', 'NMMS', 'Navodaya', 'Sainik', 'Simultala', 'CMMSS'];
+  String _selectedCategory = 'All';
 
   @override
   void initState() {
@@ -34,8 +39,17 @@ class _HomeViewState extends State<HomeView> {
   @override
   Widget build(BuildContext context) {
     final courseProvider = context.watch<CourseProvider>();
+    final cartProvider = context.watch<CartProvider>();
     final filteredCourses = courseProvider.courses.where((course) {
-      return course.title.toLowerCase().contains(_searchQuery.toLowerCase());
+      final matchesSearch = course.title.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+          (course.subtitle?.toLowerCase().contains(_searchQuery.toLowerCase()) ?? false);
+      if (_selectedCategory == 'All') return matchesSearch;
+      
+      final matchesCategory = course.title.toLowerCase().contains(_selectedCategory.toLowerCase()) ||
+          (course.subtitle?.toLowerCase().contains(_selectedCategory.toLowerCase()) ?? false) ||
+          (course.description?.toLowerCase().contains(_selectedCategory.toLowerCase()) ?? false) ||
+          course.level.toLowerCase().contains(_selectedCategory.toLowerCase());
+      return matchesSearch && matchesCategory;
     }).toList();
 
     return Scaffold(
@@ -51,12 +65,45 @@ class _HomeViewState extends State<HomeView> {
           ),
         ),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.shopping_cart_outlined, color: Colors.white),
-            onPressed: () {
-              // Open cart (handled in Module 11)
-            },
-          ),
+          Stack(
+            alignment: Alignment.center,
+            children: [
+              IconButton(
+                icon: const Icon(Icons.shopping_cart_outlined, color: Colors.white),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const CartView()),
+                  );
+                },
+              ),
+              if (cartProvider.items.isNotEmpty)
+                Positioned(
+                  top: 6,
+                  right: 6,
+                  child: Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: const BoxDecoration(
+                      color: AppColors.error,
+                      shape: BoxShape.circle,
+                    ),
+                    constraints: const BoxConstraints(
+                      minWidth: 16,
+                      minHeight: 16,
+                    ),
+                    alignment: Alignment.center,
+                    child: Text(
+                      '${cartProvider.items.length}',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 9,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                )
+            ],
+          )
         ],
       ),
       body: Column(
@@ -89,6 +136,48 @@ class _HomeViewState extends State<HomeView> {
               ),
             ),
           ),
+
+          // Horizontal Category filter chips
+          SizedBox(
+            height: 38,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              itemCount: _categories.length,
+              itemBuilder: (context, index) {
+                final category = _categories[index];
+                final isSelected = _selectedCategory == category;
+                return Padding(
+                  padding: const EdgeInsets.only(right: 8.0),
+                  child: ChoiceChip(
+                    label: Text(category),
+                    selected: isSelected,
+                    onSelected: (selected) {
+                      if (selected) {
+                        setState(() {
+                          _selectedCategory = category;
+                        });
+                      }
+                    },
+                    selectedColor: AppColors.primary,
+                    backgroundColor: AppColors.surface,
+                    labelStyle: GoogleFonts.inter(
+                      color: isSelected ? Colors.white : AppColors.textSecondary,
+                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                      fontSize: 12,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                      side: BorderSide(
+                        color: isSelected ? AppColors.primary : AppColors.borderLight,
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+          const SizedBox(height: 12),
 
           // Course Grid / List
           Expanded(

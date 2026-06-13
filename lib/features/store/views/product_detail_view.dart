@@ -37,7 +37,9 @@ class ProductDetailView extends StatelessWidget {
             AspectRatio(
               aspectRatio: 4 / 3,
               child: product.coverImageUrl != null
-                  ? Image.network(product.coverImageUrl!, fit: BoxFit.cover)
+                  ? (product.coverImageUrl!.startsWith('http')
+                      ? Image.network(product.coverImageUrl!, fit: BoxFit.cover)
+                      : Image.asset(product.coverImageUrl!, fit: BoxFit.cover))
                   : Container(
                       color: AppColors.border,
                       child: const Center(
@@ -65,15 +67,19 @@ class ProductDetailView extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
-                          color: AppColors.accent.withOpacity(0.15),
+                          color: product.productType == 'PHYSICAL_BOOK'
+                              ? AppColors.primary.withOpacity(0.15)
+                              : AppColors.accent.withOpacity(0.15),
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: Text(
-                          product.productType.replaceAll('_', ' '),
+                          product.productType == 'PHYSICAL_BOOK' ? '📖 Printed Book' : '📱 E-Book (PDF)',
                           style: GoogleFonts.inter(
                             fontSize: 10,
                             fontWeight: FontWeight.bold,
-                            color: AppColors.accent,
+                            color: product.productType == 'PHYSICAL_BOOK'
+                                ? AppColors.primary
+                                : AppColors.accent,
                           ),
                         ),
                       )

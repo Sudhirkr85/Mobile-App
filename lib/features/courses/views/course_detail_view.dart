@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../../../core/constants/api_constants.dart';
 import '../../../core/theme/app_theme.dart';
 import '../models/course_model.dart';
 import '../providers/course_provider.dart';
@@ -14,13 +15,15 @@ class CourseDetailView extends StatelessWidget {
 
   Future<void> _launchCheckout(BuildContext context) async {
     // Open web payment checkout using url_launcher
-    final url = Uri.parse('http://10.0.2.2:3000/courses/${course.slug}');
+    final url = Uri.parse('${ApiConstants.baseUrl}/courses/${course.slug}');
     if (await canLaunchUrl(url)) {
       await launchUrl(url, mode: LaunchMode.externalApplication);
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Could not open checkout page.')),
-      );
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Could not open checkout page.')),
+        );
+      }
     }
   }
 

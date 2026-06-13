@@ -58,14 +58,7 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final response = await _apiClient.post(
-        ApiConstants.login,
-        body: {
-          'email': email,
-          'password': password,
-        },
-        requiresAuth: false,
-      );
+      final response = await _apiClient.authenticateCredentials(email, password);
 
       if (response != null && response['token'] != null) {
         _token = response['token'];
