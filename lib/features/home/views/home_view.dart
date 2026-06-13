@@ -5,9 +5,6 @@ import '../../../core/theme/app_theme.dart';
 import '../../courses/providers/course_provider.dart';
 import '../../courses/views/course_detail_view.dart';
 
-import '../../store/providers/cart_provider.dart';
-import '../../store/views/cart_view.dart';
-
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
 
@@ -57,7 +54,6 @@ class _HomeViewState extends State<HomeView> {
   @override
   Widget build(BuildContext context) {
     final courseProvider = context.watch<CourseProvider>();
-    final cartProvider = context.watch<CartProvider>();
     final filteredCourses = courseProvider.courses.where((course) {
       final matchesSearch = course.title.toLowerCase().contains(_searchQuery.toLowerCase()) ||
           (course.subtitle?.toLowerCase().contains(_searchQuery.toLowerCase()) ?? false);
@@ -82,47 +78,6 @@ class _HomeViewState extends State<HomeView> {
             color: Colors.white,
           ),
         ),
-        actions: [
-          Stack(
-            alignment: Alignment.center,
-            children: [
-              IconButton(
-                icon: const Icon(Icons.shopping_cart_outlined, color: Colors.white),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const CartView()),
-                  );
-                },
-              ),
-              if (cartProvider.items.isNotEmpty)
-                Positioned(
-                  top: 6,
-                  right: 6,
-                  child: Container(
-                    padding: const EdgeInsets.all(4),
-                    decoration: const BoxDecoration(
-                      color: AppColors.error,
-                      shape: BoxShape.circle,
-                    ),
-                    constraints: const BoxConstraints(
-                      minWidth: 16,
-                      minHeight: 16,
-                    ),
-                    alignment: Alignment.center,
-                    child: Text(
-                      '${cartProvider.items.length}',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 9,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                )
-            ],
-          )
-        ],
       ),
       body: Column(
         children: [

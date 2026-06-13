@@ -30,29 +30,19 @@ class _CertificatesViewState extends State<CertificatesView> {
     });
 
     try {
-      // In a real app, calls GET /api/student/certificates
-      // Let's call the API client with a fallback to mock data
       final response = await _apiClient.get('/api/student/certificates', requiresAuth: true);
       if (response != null && response['certificates'] != null && response['certificates'] is List) {
         setState(() {
           _certificates = response['certificates'];
         });
+      } else {
+        setState(() {
+          _certificates = [];
+        });
       }
     } catch (_) {
-      // Fallback mock certificates
       setState(() {
-        _certificates = [
-          {
-            'id': 'cert_84719028a3',
-            'verificationCode': 'SCC-V874A9',
-            'issuedAt': '2026-06-12T00:00:00Z',
-            'enrollment': {
-              'course': {
-                'title': 'Advanced Systems Architecture & Data Pipelines'
-              }
-            }
-          }
-        ];
+        _certificates = [];
       });
     } finally {
       setState(() {
@@ -61,8 +51,8 @@ class _CertificatesViewState extends State<CertificatesView> {
     }
   }
 
-  Future<void> _downloadCertificate(String certId) async {
-    final downloadUrl = Uri.parse('${ApiConstants.baseUrl}/api/certificates/$certId/download');
+  Future<void> _downloadCertificate(String verificationCode) async {
+    final downloadUrl = Uri.parse('${ApiConstants.baseUrl}/api/certificates/$verificationCode/download');
     try {
       await launchUrl(downloadUrl, mode: LaunchMode.externalApplication);
     } catch (e) {
@@ -74,8 +64,8 @@ class _CertificatesViewState extends State<CertificatesView> {
     }
   }
 
-  void _shareCertificate(String certId, String courseTitle) {
-    final verificationUrl = '${ApiConstants.baseUrl}/verify/$certId';
+  void _shareCertificate(String verificationCode, String courseTitle) {
+    final verificationUrl = '${ApiConstants.baseUrl}/verify/$verificationCode';
     Share.share(
       '🎓 I just graduated and earned my certification in "$courseTitle" from Sagar Coaching Centre! Verify my credential here: $verificationUrl',
       subject: 'My Blockchain-Verified Course Certificate',
@@ -106,7 +96,6 @@ class _CertificatesViewState extends State<CertificatesView> {
                   itemCount: _certificates.length,
                   itemBuilder: (context, index) {
                     final cert = _certificates[index];
-                    final certId = cert['id'] ?? '';
                     final courseTitle = cert['enrollment']?['course']?['title'] ?? 'LMS Course Graduation';
                     final code = cert['verificationCode'] ?? 'SCC-XXXXXX';
                     final date = DateTime.parse(cert['issuedAt'] ?? DateTime.now().toIso8601String());
@@ -157,7 +146,7 @@ class _CertificatesViewState extends State<CertificatesView> {
                               children: [
                                 Expanded(
                                   child: ElevatedButton.icon(
-                                    onPressed: () => _downloadCertificate(certId),
+                                    onPressed: () => _downloadCertificate(code),
                                     icon: const Icon(Icons.download, size: 16, color: Colors.white),
                                     label: Text('DOWNLOAD', style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.white)),
                                     style: ElevatedButton.styleFrom(
@@ -170,7 +159,7 @@ class _CertificatesViewState extends State<CertificatesView> {
                                 const SizedBox(width: 12),
                                 Expanded(
                                   child: OutlinedButton.icon(
-                                    onPressed: () => _shareCertificate(certId, courseTitle),
+                                    onPressed: () => _shareCertificate(code, courseTitle),
                                     icon: const Icon(Icons.share, size: 16, color: AppColors.accent),
                                     label: Text('SHARE LINK', style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.accent)),
                                     style: OutlinedButton.styleFrom(
