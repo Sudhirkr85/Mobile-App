@@ -104,62 +104,77 @@ class _SplashViewState extends State<SplashView> with SingleTickerProviderStateM
           
           FadeTransition(
             opacity: _fadeAnimation,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                // Glowing logo branding asset
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: AppColors.surface,
-                    border: Border.all(color: AppColors.borderLight, width: 1),
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColors.primary.withOpacity(0.2),
-                        blurRadius: 40,
-                        spreadRadius: 5,
-                      )
-                    ]
-                  ),
-                  child: ClipOval(
-                    child: Image.asset(
-                      'assets/images/logo.png',
-                      width: 100,
-                      height: 100,
-                      fit: BoxFit.cover,
+            child: Center(
+              child: SizedBox(
+                width: double.infinity,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    // Glowing logo branding asset
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: AppColors.surface,
+                        border: Border.all(color: AppColors.borderLight, width: 1),
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppColors.primary.withOpacity(0.2),
+                            blurRadius: 40,
+                            spreadRadius: 5,
+                          )
+                        ]
+                      ),
+                      child: ClipOval(
+                        child: Image.asset(
+                          'assets/images/logo.png',
+                          width: 100,
+                          height: 100,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
                     ),
-                  ),
+                    const SizedBox(height: 30),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 2.0),
+                      child: Text(
+                        'SAGAR COACHING',
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.outfit(
+                          fontSize: 26,
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: 2.0,
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 8.0),
+                      child: Text(
+                        'CENTRE',
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.outfit(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 8.0,
+                          color: AppColors.accent,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      'Premium EdTech Ecosystem',
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.inter(
+                        fontSize: 12,
+                        color: AppColors.textMuted,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 30),
-                Text(
-                  'SAGAR COACHING',
-                  style: GoogleFonts.outfit(
-                    fontSize: 26,
-                    fontWeight: FontWeight.w900,
-                    letterSpacing: 2.0,
-                    color: AppColors.textPrimary,
-                  ),
-                ),
-                Text(
-                  'CENTRE',
-                  style: GoogleFonts.outfit(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 8.0,
-                    color: AppColors.accent,
-                  ),
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  'Premium EdTech Ecosystem',
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    color: AppColors.textMuted,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
+              ),
             ),
           ),
 
