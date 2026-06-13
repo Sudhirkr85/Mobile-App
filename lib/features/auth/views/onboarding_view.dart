@@ -18,18 +18,18 @@ class _OnboardingViewState extends State<OnboardingView> {
 
   final List<Map<String, String>> _slides = [
     {
-      'title': 'Immersive LMS Video Lessons',
-      'description': 'Watch lectures from YouTube and Cloudflare R2 with our custom high-fidelity player. Learn at your own pace anytime, anywhere.',
-      'icon': '📺',
+      'title': 'Sagar Sir की पाठशाला',
+      'description': 'Anytime पढ़ो — मौका कभी नहीं जाता\n\n✦ Scholarship तुम्हारा हक़ है ✦',
+      'icon': '🎬',
     },
     {
-      'title': 'Secure Digital Bookshelf',
-      'description': 'Browse and read your unlocked playbooks, reference guides, and PDF resources directly inside our secure in-app viewer.',
-      'icon': '📚',
+      'title': 'पूरी Preparation — एक जगह',
+      'description': 'Idhar-udhar भटकना बंद — सब कुछ यहीं है\n\n✦ Scholarship तुम्हारा हक़ है ✦',
+      'icon': '📖',
     },
     {
-      'title': 'Timed Quizzes & Achievements',
-      'description': 'Test your knowledge with multiple-choice quizzes, get instant grades, and download public blockchain-verified certificates.',
+      'title': 'लाखों में से वही चुने जाते हैं — जो रोज़ Fight करते हैं',
+      'description': 'तुम्हारी बारी आई है\n\n✦ Scholarship तुम्हारा हक़ है ✦',
       'icon': '🏆',
     },
   ];
@@ -200,7 +200,7 @@ class _OnboardingViewState extends State<OnboardingView> {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Text(
-                                _currentPage == _slides.length - 1 ? 'Get Started' : 'Next',
+                                _currentPage == _slides.length - 1 ? 'Join करो अभी' : 'Next',
                                 style: GoogleFonts.inter(
                                   color: Colors.white,
                                   fontWeight: FontWeight.bold,

@@ -30,7 +30,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Sagar Student App',
+      title: 'Sagar Coaching Centre',
       theme: AppTheme.darkTheme,
       home: const SplashView(),
       debugShowCheckedModeBanner: false,
