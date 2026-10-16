@@ -37,8 +37,15 @@ class _ClassroomViewState extends State<ClassroomView> {
     super.dispose();
   }
 
+  bool get _isStudentEnrolled {
+    return widget.course.isEnrolled ||
+        context.read<CourseProvider>().enrolledCourses.any(
+              (c) => c.id == widget.course.id || c.slug == widget.course.slug,
+            );
+  }
+
   void _selectLesson(LessonModel lesson) {
-    if (!lesson.isPreview && !widget.course.isEnrolled) {
+    if (!lesson.isPreview && !_isStudentEnrolled) {
       // Show locked dialog
       _showLockedDialog();
       return;
@@ -119,7 +126,7 @@ class _ClassroomViewState extends State<ClassroomView> {
           _buildPlayerViewport(),
 
           // 2. Active lesson control bar (Mark Lesson Completed trigger)
-          if (_selectedLesson != null && widget.course.isEnrolled)
+          if (_selectedLesson != null && _isStudentEnrolled)
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               color: AppColors.surface,
@@ -220,7 +227,7 @@ class _ClassroomViewState extends State<ClassroomView> {
                             initiallyExpanded: index == 0,
                             children: section.lessons.map((lesson) {
                               final isSelected = _selectedLesson?.id == lesson.id;
-                              final isLocked = !lesson.isPreview && !widget.course.isEnrolled;
+                              final isLocked = !lesson.isPreview && !_isStudentEnrolled;
                               
                               return ListTile(
                                 selected: isSelected,

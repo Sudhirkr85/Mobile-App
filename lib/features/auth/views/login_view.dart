@@ -28,28 +28,96 @@ class _LoginViewState extends State<LoginView> {
     super.dispose();
   }
 
-  // Launches the web page for forgot password
-  Future<void> _launchForgotPassword() async {
-    final url = Uri.parse('${ApiConstants.baseUrl}/forgot-password'); // Pointing to Next.js env
-    try {
-      await launchUrl(url, mode: LaunchMode.externalApplication);
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Unable to open password reset link. Please check your connection and try again.')),
-        );
-      }
-    }
-  }
-
-  // Launches the social auth signin on Vercel/NextAuth web portal
-  Future<void> _launchSocialAuth(String provider) async {
-    final url = Uri.parse('${ApiConstants.baseUrl}/api/auth/signin/$provider');
-    try {
-      await launchUrl(url, mode: LaunchMode.externalApplication);
-    } catch (e) {
-      _showError('Unable to open $provider login page. Please check your connection.');
-    }
+  // In-app Forgot Password Dialog (Zero browser redirection)
+  void _showForgotPasswordDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: AppColors.surface,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Row(
+          children: [
+            const Icon(Icons.lock_reset, color: AppColors.accent),
+            const SizedBox(width: 8),
+            Text(
+              'Forgot Password?',
+              style: GoogleFonts.outfit(color: Colors.white, fontSize: 18),
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'To reset your password or recover your account, please contact Sagar Coaching Centre Student Support desk:',
+              style: GoogleFonts.inter(color: AppColors.textSecondary, fontSize: 13),
+            ),
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: AppColors.cardBg,
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: AppColors.border),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      const Icon(Icons.phone, size: 16, color: AppColors.success),
+                      const SizedBox(width: 8),
+                      Text(
+                        ApiConstants.supportPhone,
+                        style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      const Icon(Icons.email_outlined, size: 16, color: AppColors.accent),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          ApiConstants.supportEmail,
+                          style: GoogleFonts.inter(color: AppColors.textSecondary, fontSize: 12),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('Close', style: GoogleFonts.inter(color: AppColors.textMuted)),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              launchUrl(
+                Uri.parse('https://wa.me/919110113671?text=Hello%2C%20I%20need%20help%20resetting%20my%20Sagar%20Coaching%20App%20password.'),
+                mode: LaunchMode.externalApplication,
+              );
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.success,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            ),
+            child: Text(
+              'WhatsApp Help',
+              style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.bold),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   Future<void> _handleLogin() async {
@@ -201,7 +269,7 @@ class _LoginViewState extends State<LoginView> {
                       Align(
                         alignment: Alignment.centerRight,
                         child: TextButton(
-                          onPressed: _launchForgotPassword,
+                          onPressed: _showForgotPasswordDialog,
                           child: Text(
                             'Forgot Password?',
                             style: GoogleFonts.inter(
@@ -253,70 +321,6 @@ class _LoginViewState extends State<LoginView> {
                       ),
                       const SizedBox(height: 30),
 
-                      // Divider for Social logins
-                      Row(
-                        children: [
-                          const Expanded(child: Divider(color: AppColors.border, thickness: 1)),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                            child: Text(
-                              'Or continue with',
-                              style: GoogleFonts.inter(
-                                color: AppColors.textMuted,
-                                fontSize: 12,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ),
-                          const Expanded(child: Divider(color: AppColors.border, thickness: 1)),
-                        ],
-                      ),
-                      const SizedBox(height: 24),
-
-                      // Social Buttons
-                      Row(
-                        children: [
-                          Expanded(
-                            child: OutlinedButton.icon(
-                              onPressed: () => _launchSocialAuth('google'),
-                              icon: const Text('🌐', style: TextStyle(fontSize: 18)),
-                              label: Text(
-                                'Google',
-                                style: GoogleFonts.inter(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                              style: OutlinedButton.styleFrom(
-                                side: const BorderSide(color: AppColors.border),
-                                padding: const EdgeInsets.symmetric(vertical: 14),
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: OutlinedButton.icon(
-                              onPressed: () => _launchSocialAuth('github'),
-                              icon: const Text('🐙', style: TextStyle(fontSize: 18)),
-                              label: Text(
-                                'GitHub',
-                                style: GoogleFonts.inter(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                              style: OutlinedButton.styleFrom(
-                                side: const BorderSide(color: AppColors.border),
-                                padding: const EdgeInsets.symmetric(vertical: 14),
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 30),
-
                       // Redirect to Sign Up
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -333,7 +337,7 @@ class _LoginViewState extends State<LoginView> {
                               );
                             },
                             child: Text(
-                              'Sign Up',
+                              'Sign Up (नया खाता बनाएं)',
                               style: GoogleFonts.inter(
                                 color: AppColors.accent,
                                 fontWeight: FontWeight.bold,

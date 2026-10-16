@@ -219,7 +219,7 @@ class _HomeViewState extends State<HomeView> {
                                       children: [
                                         AspectRatio(
                                           aspectRatio: 16 / 9,
-                                          child: course.coverImageUrl != null
+                                          child: course.coverImageUrl != null && course.coverImageUrl!.isNotEmpty
                                               ? Image.network(
                                                   course.coverImageUrl!,
                                                   fit: BoxFit.cover,

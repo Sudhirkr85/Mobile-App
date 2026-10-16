@@ -1,3 +1,5 @@
+import '../../../core/constants/api_constants.dart';
+
 class ProductModel {
   final String id;
   final String title;
@@ -22,12 +24,13 @@ class ProductModel {
   });
 
   factory ProductModel.fromJson(Map<String, dynamic> json) {
+    final rawCover = json['coverImageUrl'] as String?;
     return ProductModel(
       id: json['id'] ?? '',
       title: json['title'] ?? '',
       slug: json['slug'] ?? '',
       description: json['description'] ?? json['shortDescription'],
-      coverImageUrl: json['coverImageUrl'],
+      coverImageUrl: ApiConstants.formatImageUrl(rawCover),
       priceCents: json['priceCents'] ?? 0,
       originalPriceCents: json['originalPriceCents'],
       productType: json['productType'] ?? 'DIGITAL_RESOURCE',

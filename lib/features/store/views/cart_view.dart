@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/constants/api_constants.dart';
 import '../providers/cart_provider.dart';
 
 class CartView extends StatefulWidget {
@@ -41,6 +44,162 @@ class _CartViewState extends State<CartView> {
         );
       }
     }
+  }
+
+  Future<void> _showUpiCartCheckout(CartProvider cartProvider) async {
+    final upiAmount = cartProvider.total.toStringAsFixed(2);
+    final upiVpa = ApiConstants.upiVpa;
+    final upiName = Uri.encodeComponent(ApiConstants.upiName);
+    final upiNote = Uri.encodeComponent('Sagar Coaching Store Order');
+    final upiUriString = 'upi://pay?pa=$upiVpa&pn=$upiName&am=$upiAmount&cu=INR&tn=$upiNote';
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: AppColors.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (ctx) {
+        return Padding(
+          padding: EdgeInsets.only(
+            left: 20,
+            right: 20,
+            top: 20,
+            bottom: MediaQuery.of(context).viewInsets.bottom + 24,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: AppColors.border,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF00B9F1).withOpacity(0.15),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: const Color(0xFF00B9F1), width: 0.8),
+                        ),
+                        child: Text(
+                          '⚡ UPI ONLY',
+                          style: GoogleFonts.inter(
+                            color: const Color(0xFF00B9F1),
+                            fontWeight: FontWeight.w900,
+                            fontSize: 11,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Store Order Checkout',
+                        style: GoogleFonts.outfit(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+                      ),
+                    ],
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close, color: AppColors.textMuted),
+                    onPressed: () => Navigator.pop(ctx),
+                  )
+                ],
+              ),
+              const SizedBox(height: 14),
+              Container(
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: AppColors.cardBg,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: AppColors.border),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('Total Payable Amount', style: GoogleFonts.inter(color: AppColors.textSecondary, fontSize: 13)),
+                    Text(
+                      '₹$upiAmount',
+                      style: GoogleFonts.outfit(color: AppColors.success, fontWeight: FontWeight.w900, fontSize: 20),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton.icon(
+                onPressed: () async {
+                  final uri = Uri.parse(upiUriString);
+                  try {
+                    await launchUrl(uri, mode: LaunchMode.externalApplication);
+                  } catch (_) {
+                    await launchUrl(uri, mode: LaunchMode.platformDefault);
+                  }
+                },
+                icon: const Icon(Icons.flash_on, color: Colors.white),
+                label: Text(
+                  'PAY ₹$upiAmount VIA ANY UPI APP',
+                  style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: Colors.white),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF6366F1),
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+              ),
+              const SizedBox(height: 12),
+              OutlinedButton.icon(
+                onPressed: () {
+                  Clipboard.setData(ClipboardData(text: upiVpa));
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('UPI ID copied to clipboard!'), backgroundColor: AppColors.success),
+                  );
+                },
+                icon: const Icon(Icons.copy, size: 16, color: Colors.white),
+                label: Text('Copy UPI ID: $upiVpa', style: GoogleFonts.inter(fontSize: 12, color: Colors.white)),
+                style: OutlinedButton.styleFrom(
+                  side: const BorderSide(color: AppColors.border),
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+              ),
+              const SizedBox(height: 12),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(ctx);
+                  cartProvider.clearCart();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('🎉 Order placed successfully via UPI!'),
+                      backgroundColor: AppColors.success,
+                    ),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.success,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+                child: Text(
+                  'I Have Paid (भुगतान पूरा हुआ)',
+                  style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: Colors.white),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -236,17 +395,18 @@ class _CartViewState extends State<CartView> {
                       ),
                       const SizedBox(height: 24),
 
-                      // Checkout Razorpay Redirection button
-                      ElevatedButton(
-                        onPressed: () => cartProvider.checkout(context),
+                      // Checkout UPI Only button
+                      ElevatedButton.icon(
+                        onPressed: () => _showUpiCartCheckout(cartProvider),
+                        icon: const Icon(Icons.flash_on, color: Colors.white),
+                        label: Text(
+                          'PAY WITH UPI (UPI से खरीदें)',
+                          style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: Colors.white, letterSpacing: 1.0),
+                        ),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.success,
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                        ),
-                        child: Text(
-                          'PROCEED TO SECURE CHECKOUT',
-                          style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: Colors.white, letterSpacing: 1.0),
                         ),
                       )
                     ],

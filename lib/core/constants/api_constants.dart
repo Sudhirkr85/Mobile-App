@@ -3,7 +3,7 @@ class ApiConstants {
   // flutter run --dart-define-from-file=.env.json
   static const String baseUrl = String.fromEnvironment(
     'API_BASE_URL',
-    defaultValue: 'https://sudhir-sa.vercel.app',
+    defaultValue: 'https://www.sagarcoaching.tech',
   );
   static const String apiVersion = '/api';
 
@@ -18,12 +18,31 @@ class ApiConstants {
   );
   static const String officialWebsite = String.fromEnvironment(
     'OFFICIAL_WEBSITE',
-    defaultValue: 'https://sagarcoachingcentre.com',
+    defaultValue: 'https://www.sagarcoaching.tech',
   );
   static const String coachingAddress = String.fromEnvironment(
     'COACHING_ADDRESS',
     defaultValue: 'NH 106, Bhagwanpur, Supaul, Bihar - 854338',
   );
+  static const String upiVpa = String.fromEnvironment(
+    'UPI_VPA',
+    defaultValue: '9110113671@okbizaxis',
+  );
+  static const String upiName = String.fromEnvironment(
+    'UPI_NAME',
+    defaultValue: 'Sagar Coaching Centre',
+  );
+
+  /// Helper to convert relative image paths (e.g. /images/...) to absolute URLs
+  static String formatImageUrl(String? url) {
+    if (url == null || url.trim().isEmpty) return '';
+    final clean = url.trim();
+    if (clean.startsWith('http://') || clean.startsWith('https://')) {
+      return clean;
+    }
+    final path = clean.startsWith('/') ? clean : '/$clean';
+    return '$baseUrl$path';
+  }
 
   // Auth Endpoints
   static const String login = '$apiVersion/auth/callback/credentials'; // NextAuth endpoint
@@ -32,6 +51,10 @@ class ApiConstants {
   // Student Dashboard & Learning Endpoints
   static const String enrolledCourses = '$apiVersion/student/courses';
   static const String courseDetails = '$apiVersion/courses'; // path + /[courseSlug]
+  static const String courseLearn = '$apiVersion/courses'; // path + /[courseSlug]/learn
+  static const String enrollFree = '$apiVersion/courses/enroll/free';
+  static const String enrollCheckout = '$apiVersion/courses/enroll/checkout';
+  static const String enrollVerify = '$apiVersion/courses/enroll/verify';
   static const String lessonProgress = '$apiVersion/student/progress/update';
   
   // Library Endpoints

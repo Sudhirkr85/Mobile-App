@@ -72,7 +72,7 @@ class _MyLearningViewState extends State<MyLearningView> {
                               // Course cover image
                               AspectRatio(
                                 aspectRatio: 20 / 9,
-                                child: course.coverImageUrl != null
+                                child: course.coverImageUrl != null && course.coverImageUrl!.isNotEmpty
                                     ? Image.network(
                                         course.coverImageUrl!,
                                         fit: BoxFit.cover,

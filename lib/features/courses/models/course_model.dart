@@ -1,3 +1,5 @@
+import '../../../core/constants/api_constants.dart';
+
 class CourseModel {
   final String id;
   final String title;
@@ -36,13 +38,15 @@ class CourseModel {
       }
     }
 
+    final rawImage = json['coverImageUrl'] as String?;
+
     return CourseModel(
       id: json['id'] ?? '',
       title: json['title'] ?? '',
       slug: json['slug'] ?? '',
       subtitle: json['subtitle'],
       description: json['description'],
-      coverImageUrl: json['coverImageUrl'],
+      coverImageUrl: ApiConstants.formatImageUrl(rawImage),
       priceCents: json['priceCents'] ?? 0,
       level: json['level'] ?? 'ALL_LEVELS',
       teachers: teachersList,

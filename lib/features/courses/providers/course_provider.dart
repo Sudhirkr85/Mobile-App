@@ -184,4 +184,78 @@ class CourseProvider extends ChangeNotifier {
       rethrow;
     }
   }
+
+  // 7. Free Course In-App Enrollment
+  Future<bool> enrollFreeCourse(String courseId) async {
+    _isLoading = true;
+    notifyListeners();
+    try {
+      final response = await _apiClient.post(
+        ApiConstants.enrollFree,
+        body: {'courseId': courseId},
+        requiresAuth: true,
+      );
+      if (response != null && response['success'] == true) {
+        await fetchEnrolledCourses();
+        return true;
+      }
+      return false;
+    } catch (e) {
+      rethrow;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  // 8. Create Paid Course Checkout Order for In-App Payment
+  Future<Map<String, dynamic>> createCourseOrder({
+    required String courseId,
+    String? couponCode,
+  }) async {
+    try {
+      final response = await _apiClient.post(
+        ApiConstants.enrollCheckout,
+        body: {
+          'courseId': courseId,
+          if (couponCode != null && couponCode.isNotEmpty) 'couponCode': couponCode,
+        },
+        requiresAuth: true,
+      );
+      if (response != null && response['razorpayOrderId'] != null) {
+        return Map<String, dynamic>.from(response);
+      }
+      throw ApiException(response?['message'] ?? 'Failed to initiate checkout.');
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  // 9. Verify Enrollment Payment
+  Future<bool> verifyEnrollmentPayment({
+    required String razorpayOrderId,
+    required String razorpayPaymentId,
+    required String razorpaySignature,
+    required String enrollmentId,
+  }) async {
+    try {
+      final response = await _apiClient.post(
+        ApiConstants.enrollVerify,
+        body: {
+          'razorpay_order_id': razorpayOrderId,
+          'razorpay_payment_id': razorpayPaymentId,
+          'razorpay_signature': razorpaySignature,
+          'enrollmentId': enrollmentId,
+        },
+        requiresAuth: true,
+      );
+      if (response != null && response['success'] == true) {
+        await fetchEnrolledCourses();
+        return true;
+      }
+      return false;
+    } catch (e) {
+      rethrow;
+    }
+  }
 }
